@@ -5,11 +5,12 @@ using UnityEngine;
 //every node saves a callReturn finished which is set by its parent in initialize(Student etudiant, callReturn finished), this is sent back to its parent upon completion
 //every node also sets a callReturn returnToMe which is the analog of finished: a function that it passes to its children to be returned to this upon completion
 
-public class CompositeNode : BehaviourNode {
+public class CompositeNode : BehaviourNode
+{
 
     private List<BehaviourNode> children;
 
-    public CompositeNode(Student etudiant, callReturn parent) : base(etudiant,parent)
+    public CompositeNode(Student etudiant, callReturn parent) : base(etudiant, parent)
     {
         children = new List<BehaviourNode>();
     }
@@ -26,7 +27,7 @@ public class CompositeNode : BehaviourNode {
 
     public override void reset()
     {
-        status = -2; 
+        status = -2;
         foreach (BehaviourNode child in children)
         {
             child.reset();
@@ -47,7 +48,7 @@ public class CompositeNode : BehaviourNode {
 
     public int Sequence(callReturn finished)//all children must return success to return success
     {
-        for (int i = 0; i<children.Count;i++)
+        for (int i = 0; i < children.Count; i++)
         {
             if (children[i].getStatus() == -1)//if unsuccessful, return unsuccessful
             {
@@ -86,7 +87,7 @@ public class CompositeNode : BehaviourNode {
 
     public int Selector(callReturn finished)//if one child returns success, return success
     {
-        for (int i = 0; i<children.Count; i++)
+        for (int i = 0; i < children.Count; i++)
         {
             if (children[i].getStatus() == 1)
             {

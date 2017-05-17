@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Student : MonoBehaviour {
+public class Student : MonoBehaviour
+{
 
     private float speed;
     private Rigidbody rb;
@@ -14,8 +15,8 @@ public class Student : MonoBehaviour {
     private Tile target;
     private Plaque plaque;
     void Start()
-    {   
-        
+    {
+
     }
     void FixedUpdate()
     {
@@ -42,7 +43,7 @@ public class Student : MonoBehaviour {
         CompositeNode idleChild = new CompositeNode(this, idle.returnToMe);
         idleChild.initSequence();
         idle.setChild(idleChild);
-        LeafNode setRandom = new LeafNode(this, idleChild.returnToMe,this.setRandom);
+        LeafNode setRandom = new LeafNode(this, idleChild.returnToMe, this.setRandom);
         idleChild.AddChild(setRandom);
         LeafNode randomMove = new LeafNode(this, idleChild.returnToMe, this.beginJourney);
         idleChild.AddChild(randomMove);
@@ -55,7 +56,7 @@ public class Student : MonoBehaviour {
         CompositeNode explorePlaques = new CompositeNode(this, getProfLocation.returnToMe);
         explorePlaques.initSelector();
         getProfLocation.AddChild(explorePlaques);
-        for (int i = 0; i<6; i++)
+        for (int i = 0; i < 6; i++)
         {
             CompositeNode PlaqueFinder = new CompositeNode(this, explorePlaques.returnToMe);
             PlaqueFinder.initSelector();
@@ -70,7 +71,7 @@ public class Student : MonoBehaviour {
         LeafNode finalMove = new LeafNode(this, root.returnToMe, this.beginJourney);
         root.AddChild(finalMove);
     }
-    
+
     public Professor getAssigned()
     {
         return this.assigned;
@@ -104,7 +105,7 @@ public class Student : MonoBehaviour {
     }
     public int isAdvisor(BehaviourNode.callReturn finished)//implement angular sweep here 
     {
-        if (ReferenceEquals(assigned,plaque.getProf()))
+        if (ReferenceEquals(assigned, plaque.getProf()))
         {
             target = plaque.getProf().getLocation();
             finished(1);
@@ -124,13 +125,13 @@ public class Student : MonoBehaviour {
         {
             target = silver.Map[(int)plaques[0].transform.position.x, (int)plaques[0].transform.position.z];
         }
-        for (int i = 0; i<plaques.Length; i++)
+        for (int i = 0; i < plaques.Length; i++)
         {
             if (plaques[i].transform.position.x == target.pos.x && plaques[i].transform.position.z == target.pos.z)
             {
                 if (i != plaques.Length)
                 {
-                    target = silver.Map[(int)plaques[i + 1].transform.position.x,(int)plaques[i+1].transform.position.z];
+                    target = silver.Map[(int)plaques[i + 1].transform.position.x, (int)plaques[i + 1].transform.position.z];
                     plaque = plaques[i + 1];
                 }
                 else
@@ -148,7 +149,7 @@ public class Student : MonoBehaviour {
     public int profSaved(BehaviourNode.callReturn finished)
     {
         Tile t;
-        if (last4Profs.TryGetValue(assigned,out t))
+        if (last4Profs.TryGetValue(assigned, out t))
         {
             Debug.Log("Saved Prof");
             target = t;
@@ -166,7 +167,7 @@ public class Student : MonoBehaviour {
     public int setRandom(BehaviourNode.callReturn finished)
     {
         Debug.Log("Going to Random Location");
-        target = silver.Map[Random.Range(0,silver.Map.GetLength(0)),Random.Range(0,silver.Map.GetLength(1))];
+        target = silver.Map[Random.Range(0, silver.Map.GetLength(0)), Random.Range(0, silver.Map.GetLength(1))];
         while (!target.getPassable())
         {
             target = silver.Map[Random.Range(0, silver.Map.GetLength(0)), Random.Range(0, silver.Map.GetLength(1))];
@@ -189,10 +190,7 @@ public class Student : MonoBehaviour {
         yield return new WaitUntil(() => gameObject.transform.position.x == target.pos.x && gameObject.transform.position.z == target.pos.z);
         Debug.Log("Finished Moving");
         finished(1);
-                   
-    }
-    public int wait(BehaviourNode.callReturn finished)
-    {
-        return 0;
+
     }
 }
+

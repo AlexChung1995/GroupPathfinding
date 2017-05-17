@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Search {//node in search tree
+public class Search
+{//node in search tree
 
     private Tile tile;
     private Search parent;
-	
+
     public Search(Tile t)
     {
         tile = t;

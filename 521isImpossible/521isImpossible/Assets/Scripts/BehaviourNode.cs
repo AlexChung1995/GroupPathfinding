@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-    public class BehaviourNode{
+public class BehaviourNode
+{
     protected Student student;
-	protected int status; //1 if success, 0 if running, -1 if failure
+    protected int status; //1 if success, 0 if running, -1 if failure
     public delegate int callReturn(int success);
     public callReturn finished;//set by parent, return to parent
     public callReturn returnToMe;//send this to children
@@ -16,7 +17,7 @@ using UnityEngine;
     {
         student = etudiant;
         finished = parent;
-        status = -2; 
+        status = -2;
 
     }
 
@@ -40,7 +41,7 @@ using UnityEngine;
     {
         status = success;
         finished(success);
-        return success; 
+        return success;
     }
 
     public int getStatus()
@@ -53,11 +54,11 @@ using UnityEngine;
         return this.student;
     }
 
-  
+
 
     public virtual void reset()
     {
         status = -2;
-    } 
+    }
 
 }

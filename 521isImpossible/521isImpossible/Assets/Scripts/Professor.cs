@@ -2,18 +2,21 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Professor : MonoBehaviour {
+public class Professor : MonoBehaviour
+{
 
     private Tile location;
     private List<Professor> reccomendations;
-	// Use this for initialization
-	void Start () {
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+    // Use this for initialization
+    void Start()
+    {
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+
+    }
 
     public void init(Tile start)
     {

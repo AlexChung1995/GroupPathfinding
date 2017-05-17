@@ -5,11 +5,12 @@ using UnityEngine;
 //every node saves a callReturn finished which is set by its parent in initialize(Student etudiant, callReturn finished), this is sent back to its parent upon completion
 //every node also sets a callReturn returnToMe which is the analog of finished: a function that it passes to its children to be returned to this upon completion
 
-public class DecoratorNode : BehaviourNode {
+public class DecoratorNode : BehaviourNode
+{
 
     BehaviourNode child;
-	
-    public DecoratorNode(Student etudiant, callReturn parent) : base(etudiant,parent)
+
+    public DecoratorNode(Student etudiant, callReturn parent) : base(etudiant, parent)
     {
 
     }
