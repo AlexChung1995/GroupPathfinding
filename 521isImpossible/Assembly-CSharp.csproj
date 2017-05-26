@@ -56,6 +56,7 @@
      <Compile Include="Assets\Scripts\Pathfinder.cs" />
      <Compile Include="Assets\Scripts\Plaque.cs" />
      <Compile Include="Assets\Scripts\Professor.cs" />
+     <Compile Include="Assets\Scripts\Search.cs" />
      <Compile Include="Assets\Scripts\Student.cs" />
      <Compile Include="Assets\Scripts\Tile.cs" />
  <Reference Include="UnityEngine.UI">
