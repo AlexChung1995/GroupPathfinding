@@ -20,36 +20,25 @@ public class Pathfinder : MonoBehaviour
 
     public IEnumerator timeElapsed()
     {
-        Debug.Log(Time.time);
-        float studentTurn = 0;
         while (true)
         {
             
             for (int i = 0; i < students.Length; i++)
             {
-                Student student = students[i];
-             
-                if ((float)i < studentTurn + ((float)students.Length / (float)depth) && (float)i >= studentTurn)
+                Student student = students[i];  
+                if (paths[student].Count <= 1)
                 {
                     findPathForMe(student, student.getTarget());
                 }
                 if (paths[student].Count > 0)
                 {
                     student.transform.position = new Vector3(paths[student][0].pos.x, 0.5f, paths[student][0].pos.z);
+                    //Debug.Log("Pos:" + student.transform.position.x + " " + student.transform.position.z + "dest: " + student.getTarget().pos.x + " " + student.getTarget().pos.z);
                     paths[student].RemoveAt(0);
                 }
             }
             TimeSpace.RemoveAt(0);
             newTimeSlice();
-            if (studentTurn >= students.Length)
-            {
-                studentTurn = 0;
-            }
-            else
-            {
-                studentTurn += (float)students.Length / (float)depth;
-            }
-
             yield return new WaitForSecondsRealtime(deltaTime);
         }
     }
@@ -98,9 +87,9 @@ public class Pathfinder : MonoBehaviour
             paths.Add(student, new List<Tile>());
             Search root = new Search(TimeSpace[0][(int)student.transform.position.x / Map[0, 0].getScale(), (int)student.transform.position.z / Map[0, 0].getScale()]);
             Search current = root;
-            for (int j = 1; j < (float)i / ((float)students.Length / (float)depth); j++)
+            for (int j = 0; j <= ((float)i / ((float)students.Length / (float)depth)); j++)
             {
-                Search next = new Search(TimeSpace[(int)j][(int)student.transform.position.x / Map[0, 0].getScale(), (int)student.transform.position.z / Map[0, 0].getScale()]);
+                Search next = new Search(TimeSpace[(0)][(int)student.transform.position.x / Map[0, 0].getScale(), (int)student.transform.position.z / Map[0, 0].getScale()]);
                 next.setParent(current);
                 current = next;
             }
@@ -108,14 +97,12 @@ public class Pathfinder : MonoBehaviour
             createPath(current, student);
             student.init();
         }
-        Debug.Log(Time.time);
         StartCoroutine("timeElapsed");
     }
 
     public void newTarget(Student student)
     {
-        BackWardsA[student] = new Dictionary<Tile, int>(); //wipe true distance heuristic
-        paths[student] = new List<Tile>();
+        BackWardsA[student].Clear(); //wipe true distance heuristic
     }
 
     public delegate int heuristic(Tile source, Tile dest);//functional programming! can use different heuristics
@@ -163,7 +150,7 @@ public class Pathfinder : MonoBehaviour
         SortedList<int, Search> openF = new SortedList<int, Search>(new DuplicateKeyComparer<int>());
         SortedList<int, Search> closeF = new SortedList<int, Search>(new DuplicateKeyComparer<int>()); //map a F value to a Tile 
         Dictionary<Tile, int> distFromSource = new Dictionary<Tile, int>();//can be a <Tile,int> dictionary because every tile regardless of node has the same dist from source
-        int timeSlice = paths[student].Count; //the latest time at which the student has a planned action, the timeslice at which source is currently
+        int timeSlice = paths[student].Count - 1; //the latest time at which the student has a planned action, the timeslice at which source is currently
         Search current = new Search(source);
         Open.Add(current, timeSlice);
         int h;
@@ -185,10 +172,11 @@ public class Pathfinder : MonoBehaviour
             timeSlice = Open[current];//sorted list works as expected
             if (current.getTile().pos.x == dest.pos.x && current.getTile().pos.z == dest.pos.z)// if we have found our desired location
             {
+                Debug.Log("Found, timeslice: " + timeSlice);
                 for (int k = timeSlice; k<TimeSpace.Count - 1; k++)
                 {
                     Search stay = new Search(TimeSpace[k + 1][(int)dest.pos.x, (int)dest.pos.z]);//same tile, 1 step into the future
-                    current.setParent(stay);
+                    stay.setParent(current);
                     current = stay;
                 }
                 createPath(current, student);
@@ -398,7 +386,7 @@ public class Pathfinder : MonoBehaviour
             }
             int position = Open.IndexOf(current);
             Closed.Add(Open[position]);
-            closeF.Add(openF[position]);//closed doesnt need to be a priority queue
+            closeF.Add(openF[position]);
             Open.RemoveAt(position);
             openF.RemoveAt(position);
 
@@ -415,19 +403,18 @@ public class Pathfinder : MonoBehaviour
     {
         Search current = dest;
         int insertPos = paths[student].Count;
-        Debug.Log("Insert Pos: " + insertPos);
-        while (current != null)
+        while (current.getParent() != null)
         {
             paths[student].Insert(insertPos, current.getTile());
             current = current.getParent();
         }
+        Debug.Log("Created path of length: " + paths[student].Count);
         markResTable(student);
         return 1;
     }
     public int markResTable(Student student)//mark reservation table position as impassable
     {// need to add last position reservation functionality 
         List<Tile> path = paths[student];
-        Debug.Log("Path count: " + path.Count);
         for (int i = 0; i < path.Count; i++)
         {
             Tile mark = path[i];

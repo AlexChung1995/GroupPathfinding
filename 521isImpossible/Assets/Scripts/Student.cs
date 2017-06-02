@@ -4,13 +4,13 @@ using UnityEngine;
 
 public class Student : MonoBehaviour
 {
-
+    public int iD;
     private float speed;
     private Rigidbody rb;
     private Dictionary<Professor, Tile> last4Profs;
     private Professor lru;//least recently used prof 
     private CompositeNode root;//use this for the behaviour tree 
-    private Pathfinder silver;
+    private Pathfinder silver;//named after Adam Silver 
     private Professor assigned;
     private Tile target;
     private Plaque plaque;
@@ -59,7 +59,7 @@ public class Student : MonoBehaviour
         for (int i = 0; i < 6; i++)
         {
             CompositeNode PlaqueFinder = new CompositeNode(this, explorePlaques.returnToMe);
-            PlaqueFinder.initSelector();
+            PlaqueFinder.initSequence();
             explorePlaques.AddChild(PlaqueFinder);
             LeafNode setPlaque = new LeafNode(this, PlaqueFinder.returnToMe, this.setTargetPlaque);
             PlaqueFinder.AddChild(setPlaque);
@@ -78,6 +78,7 @@ public class Student : MonoBehaviour
     }
     public void setAssigned(Professor p)
     {
+        Debug.Log("Assigned: " + p);
         rb = GetComponent<Rigidbody>();
         silver = GameObject.FindObjectOfType<Pathfinder>();
         lru = p;
@@ -85,6 +86,7 @@ public class Student : MonoBehaviour
     }
     public void setTarget(Tile t)
     {
+        silver.newTarget(this);
         target = t;
     }
     public Tile getTarget()
@@ -105,14 +107,16 @@ public class Student : MonoBehaviour
     }
     public int isAdvisor(BehaviourNode.callReturn finished)//implement angular sweep here 
     {
-        if (ReferenceEquals(assigned, plaque.getProf()))
+        if (ReferenceEquals(assigned, this.plaque.getProf()))
         {
-            target = plaque.getProf().getLocation();
+            Debug.Log("Found Professor");
+            this.setTarget(plaque.getProf().getLocation());
             finished(1);
             return 1;
         }
         else
         {
+            Debug.Log("Not this professor");
             finished(-1);
             return -1;
         }
@@ -120,29 +124,39 @@ public class Student : MonoBehaviour
 
     public int setTargetPlaque(BehaviourNode.callReturn finished)//ugly, fix
     {
+        
         Plaque[] plaques = GameObject.FindObjectsOfType<Plaque>();
-        if (target == null)
+        if (plaque == null)
         {
-            target = silver.Map[(int)plaques[0].transform.position.x, (int)plaques[0].transform.position.z];
+            Debug.Log(iD + " setting new random plaque");
+            int random = Random.Range(0, plaques.Length);
+            this.setTarget(silver.Map[(int)plaques[random].transform.position.x, (int)plaques[random].transform.position.z]);
+            plaque = plaques[random];
         }
-        for (int i = 0; i < plaques.Length; i++)
+        else
         {
-            if (plaques[i].transform.position.x == target.pos.x && plaques[i].transform.position.z == target.pos.z)
+            Debug.Log(iD + " setting new plaque");
+            for (int i = 0; i < plaques.Length; i++)
             {
-                if (i != plaques.Length)
+                if (plaques[i].transform.position.x == target.pos.x && plaques[i].transform.position.z == target.pos.z)
                 {
-                    target = silver.Map[(int)plaques[i + 1].transform.position.x, (int)plaques[i + 1].transform.position.z];
-                    plaque = plaques[i + 1];
+                    if (i < plaques.Length - 1)
+                    {
+                        this.setTarget(silver.Map[(int)plaques[i + 1].transform.position.x, (int)plaques[i + 1].transform.position.z]);
+                        plaque = plaques[i + 1];
+                        break;
+                    }
+                    else
+                    {
+                        this.setTarget(silver.Map[(int)plaques[0].transform.position.x, (int)plaques[0].transform.position.z]);
+                        plaque = plaques[0];
+                        break;
+                    }
                 }
-                else
-                {
-                    target = silver.Map[(int)plaques[0].transform.position.x, (int)plaques[0].transform.position.z];
-                    plaque = plaques[0];
-                }
-                return 1;
             }
         }
-        return 0;
+        finished(1);
+        return 1;
 
     }
 
@@ -151,14 +165,14 @@ public class Student : MonoBehaviour
         Tile t;
         if (last4Profs.TryGetValue(assigned, out t))
         {
-            //Debug.Log("Saved Prof");
-            target = t;
+            Debug.Log("Saved Prof");
+            this.setTarget(t);
             finished(1);
             return 1;
         }
         else
         {
-            //Debug.Log("Not Saved Prof");
+            Debug.Log("Not Saved Prof");
             finished(-1);
             return -1;
         }
@@ -166,11 +180,11 @@ public class Student : MonoBehaviour
 
     public int setRandom(BehaviourNode.callReturn finished)
     {
-        Debug.Log("Going to Random Location");
-        target = silver.Map[Random.Range(0, silver.Map.GetLength(0)), Random.Range(0, silver.Map.GetLength(1))];
+        Debug.Log(iD+ " Going to Random Location");
+        this.setTarget(silver.Map[Random.Range(0, silver.Map.GetLength(0)), Random.Range(0, silver.Map.GetLength(1))]);
         while (!target.getPassable())
         {
-            target = silver.Map[Random.Range(0, silver.Map.GetLength(0)), Random.Range(0, silver.Map.GetLength(1))];
+            this.setTarget(silver.Map[Random.Range(0, silver.Map.GetLength(0)), Random.Range(0, silver.Map.GetLength(1))]);
         }
         finished(1);
         return 1;
@@ -186,10 +200,10 @@ public class Student : MonoBehaviour
 
     public IEnumerator moving(BehaviourNode.callReturn finished)//call from function above, instantiate in leafnode with LeafNode.DoSomething = student.beginJourney;
     {
-        yield return new WaitUntil(() => gameObject.transform.position.x == target.pos.x && gameObject.transform.position.z == target.pos.z);
-        Debug.Log("Finished Moving");
+        Debug.Log("Beginning Journey" + target.pos.x + " " + target.pos.z);
+        yield return new WaitUntil(() => this.transform.position.x == target.pos.x && this.transform.position.z == target.pos.z);
+        Debug.Log(iD + " Finished Moving");
         finished(1);
-
     }
 }
 

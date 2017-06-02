@@ -7,7 +7,6 @@ public class Plaque : MonoBehaviour
 
     private Professor prof;
     private Tile profLocation;
-    private Tile thisLocation;
     // Use this for initialization
     void Start()
     {
@@ -23,16 +22,6 @@ public class Plaque : MonoBehaviour
     public Professor getProf()
     {
         return this.prof;
-    }
-
-    public Tile getThisLocation()
-    {
-        return thisLocation;
-    }
-
-    public void setThisLocation(Tile t)
-    {
-        thisLocation = t;
     }
 
     public Tile getProfLocation()

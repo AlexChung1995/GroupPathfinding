@@ -59,8 +59,8 @@ public class Environment : MonoBehaviour
                         if ((j == roomYSize - 1 || j == yVertices - roomYSize) && i == 2 * roomXSize + k * roomXSize + 1)
                         {
                             Professor p = Instantiate(profPrefab, new Vector3(i * tileSize, 0.5f, j * tileSize), Quaternion.identity);
-                            profs[numProfInit] = p;
                             p.init(newTile);
+                            profs[numProfInit] = p;
                             numProfInit++;
                             Plaque plaque;
                             if (j == roomYSize - 1)
@@ -97,9 +97,9 @@ public class Environment : MonoBehaviour
                         if ((i == roomXSize - 1 || i == xVertices - roomXSize) && j == 2 * roomYSize + l * roomYSize + 1)
                         {
                             Professor p = Instantiate(profPrefab, new Vector3(i * tileSize, 0.5f, j * tileSize), Quaternion.identity);
+                            p.init(newTile);
                             profs[numProfInit] = p;
                             numProfInit++;
-                            p.init(newTile);
                             Plaque plaque;
                             if (i == roomXSize - 1)
                             {
@@ -158,6 +158,7 @@ public class Environment : MonoBehaviour
                 y = Random.Range((int)roomYSize + 1, (int)yVertices - roomYSize - 1);
             }
             students[i] = Instantiate(studentPrefab, new Vector3(x * tileSize, 0.5f, y * tileSize), Quaternion.identity);
+            students[i].iD = i;
             students[i].setAssigned(profs[Random.Range(0, profs.Length)]);
         }
         silver.init(tiles, students);
